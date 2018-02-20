@@ -1,0 +1,30 @@
+{
+  "name": "konsulting/laravel-site-config",
+  "authors": [
+    {
+      "name": "Robin D'Arcy",
+      "email": "robin@klever.co.uk"
+    },
+    {
+      "name": "Keoghan Litchfield",
+      "email": "keoghan@klever.co.uk"
+    }
+  ],
+  "require": {
+    "konsulting/laravel-extend-collections": "^0.1.2"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^3.6",
+    "phpunit/phpunit": "^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Konsulting\\Laravel\\SiteConfig\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Konsulting\\Laravel\\SiteConfig\\Tests": "tests/"
+    }
+  }
+}
