@@ -19,23 +19,23 @@ class SiteConfigController extends Controller
             ->dot()
             ->map(function ($item, $key) {
                 return ['key' => $key, 'value' => is_bool($item) ? (int) $item : (string) $item];
-            })->merge(SiteConfig::select(['id', 'key', 'value', 'type'])->get()->keyBy('key'))
+            })->merge(SiteConfigItem::select(['id', 'key', 'value', 'type'])->get()->keyBy('key'))
             ->sortBy('key')->values();
 
-        $types = SiteConfig::allowedTypes();
+        $types = SiteConfigItem::allowedTypes();
 
         return view('site_config::vue')->with(compact('list', 'types'));
     }
 
     public function store(Request $request)
     {
-        $this->authorize('create', SiteConfig::class);
+        $this->authorize('create', SiteConfigItem::class);
 
         $this->validate($request, [
             'key'  => 'required',
         ]);
 
-        $siteConfig = SiteConfig::updateOrCreate($request->only('key'), $request->all());
+        $siteConfig = SiteConfigItem::updateOrCreate($request->only('key'), $request->all());
 
         return $siteConfig->toArray();
     }

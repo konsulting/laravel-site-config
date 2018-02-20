@@ -11,7 +11,7 @@ class SiteConfigServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        $mergedConfig = array_replace_recursive(config('site_config', []), SiteConfig::getDotArray());
+        $mergedConfig = array_replace_recursive(config('site_config', []), SiteConfigItem::getDotArray());
 
         $this->app['config']->set('site_config', $mergedConfig);
 

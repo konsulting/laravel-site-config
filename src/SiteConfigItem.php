@@ -11,7 +11,7 @@ use Konsulting\Laravel\EditorStamps\EditorStamps;
 use Konsulting\Laravel\Sorting\Sortable;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class SiteConfig extends Model
+class SiteConfigItem extends Model
 {
     use SoftDeletes, EditorStamps, LogsActivity, Sortable;
 
@@ -50,7 +50,7 @@ class SiteConfig extends Model
      */
     public static function put($key, $value, $type = null)
     {
-        SiteConfig::updateOrCreate(
+        SiteConfigItem::updateOrCreate(
             ['key' => $key],
             ['value' => $value]
             + (isset($type) ? ['type' => $type] : [])
