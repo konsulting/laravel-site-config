@@ -5,12 +5,8 @@ namespace Konsulting\Laravel\SiteConfig;
 class SiteConfig
 {
     /**
-     * @var string
-     */
-    protected static $configNamespace = 'site_config';
-
-    /**
-     * Get an item from site config.
+     * Get an item from site config. All database items should already be merged into the application config, so no
+     * need to check the database.
      *
      * @param string $key
      * @return mixed
@@ -50,8 +46,8 @@ class SiteConfig
     protected static function namespace($key = null)
     {
         return is_null($key)
-            ? static::$configNamespace
-            : static::$configNamespace . '.' . $key;
+            ? config('site_config_package.config_namespace')
+            : config('site_config_package.config_namespace') . '.' . $key;
     }
 
     /**
