@@ -19,7 +19,8 @@ class SiteConfigController extends Controller
             ->dot()
             ->map(function ($item, $key) {
                 return ['key' => $key, 'value' => is_bool($item) ? (int) $item : (string) $item];
-            })->merge(SiteConfigItem::select(['id', 'key', 'value', 'type'])->get()->keyBy('key'))
+            })
+            ->merge(SiteConfigItem::select(['id', 'key', 'value', 'type'])->get()->keyBy('key'))
             ->sortBy('key')->values();
 
         $types = SiteConfigItem::allowedTypes();
@@ -32,7 +33,7 @@ class SiteConfigController extends Controller
         $this->authorize('create', SiteConfigItem::class);
 
         $this->validate($request, [
-            'key'  => 'required',
+            'key' => 'required',
         ]);
 
         $siteConfig = SiteConfigItem::updateOrCreate($request->only('key'), $request->all());

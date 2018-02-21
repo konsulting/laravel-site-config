@@ -2,10 +2,7 @@
 
 namespace Konsulting\Laravel\SiteConfig;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
 use Konsulting\Laravel\EditorStamps\EditorStamps;
 use Konsulting\Laravel\Sorting\Sortable;
@@ -13,10 +10,29 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class SiteConfigItem extends Model
 {
-    use SoftDeletes, EditorStamps, LogsActivity, Sortable;
+//    use SoftDeletes, EditorStamps, LogsActivity, Sortable;
 
     protected $table = 'site_config';
 
+    /**
+     * Use the config item key as the table's primary key.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'key';
+
+    /**
+     * The database table uses a string primary key.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * The mass-assignable attributes.
+     *
+     * @var array
+     */
     protected $fillable = ['key', 'value', 'type', 'arguments'];
 
     protected static $sortableSettings = [
@@ -27,18 +43,18 @@ class SiteConfigItem extends Model
     /**
      * Whenever we make a change to this model, we should remove the cached values
      */
-    public static function boot()
-    {
-        parent::boot();
-
-        static::saved(function () {
-            \Cache::forget('site_config');
-        });
-
-        static::deleted(function () {
-            \Cache::forget('site_config');
-        });
-    }
+//    public static function boot()
+//    {
+//        parent::boot();
+//
+//        static::saved(function () {
+//            \Cache::forget('site_config');
+//        });
+//
+//        static::deleted(function () {
+//            \Cache::forget('site_config');
+//        });
+//    }
 
     /**
      * Store the specified key and value in the database, and update the config value for the current request.
@@ -48,87 +64,56 @@ class SiteConfigItem extends Model
      * @param string $type
      * @return mixed
      */
-    public static function put($key, $value, $type = null)
+    public static function setItem($key, $value, $type = null)
     {
-        SiteConfigItem::updateOrCreate(
-            ['key' => $key],
-            ['value' => $value]
-            + (isset($type) ? ['type' => $type] : [])
-        );
-        config(['site_config.' . $key => static::cast($value, $type ?? null)]);
+        $serialised = Caster::serialise($value, $type);
+        static::updateOrCreate(compact('key'), [
+            'value' => $serialised->getValue(),
+            'type'  => $serialised->getOriginalType(),
+        ]);
 
         return $value;
     }
 
-    public static function getDotArray()
+    /**
+     * Get an item by key.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public static function getItem($key)
     {
-        try {
-            // Get the site config from the db and extract to an array
-            // cache the result for 15 mins
+        $item = static::whereKey($key)->first();
 
-            return \Cache::remember('site_config', 15, function () {
-                $dotted = static::select('key', 'value', 'type')->get()->reduce(function ($array, $item) {
-                    $array[$item->key] = static::cast($item->value, $item->type);
-
-                    return $array;
-                }, []);
-
-                return Arr::fromDot($dotted);
-            });
-        } catch (QueryException $e) {
-            return [];
-        }
+        return $item ? $item->getCastedValue() : null;
     }
 
-    public static function cast($value, $type = null)
+    /**
+     * Construct and return an associative array based on the key/value pairs in the database. The keys are stored in
+     * the database in dot notation.
+     *
+     * @return array
+     */
+    public static function getConfigArray()
     {
-        $type = strtolower($type);
+//        return \Cache::remember('site_config', 15, function () {
+        $dotted = static::select('key', 'value', 'type')->get()
+            ->mapWithKeys(function (SiteConfigItem $item) {
+                return [$item->key => $item->getCastedValue()];
+            })
+            ->toArray();
 
-        if (empty($type) || $type == 'string') {
-            return $value;
-        }
-
-        switch ($type) {
-            case 'bool':
-            case 'boolean':
-                $value = ($value == 'false') ? 0 : $value;
-
-                return ! ! $value;
-                break;
-            case 'array':
-                return unserialize($value);
-                break;
-            case 'json':
-                return json_decode($value, true);
-                break;
-            case 'json_object':
-                return json_decode($value);
-                break;
-            case 'date':
-                return Carbon::parse($value);
-                break;
-            case 'integer':
-                return (int) $value;
-                break;
-            case 'float':
-                return (float) $value;
-            case 'string':
-            default:
-                return $value;
-        }
+        return Arr::fromDot($dotted);
+//        });
     }
 
-    public static function allowedTypes()
+    /**
+     * Get the casted value based on the 'type' property.
+     *
+     * @return mixed
+     */
+    public function getCastedValue()
     {
-        return [
-            'array',
-            'boolean',
-            'date',
-            'float',
-            'integer',
-            'json',
-            'json_object',
-            'string',
-        ];
+        return Caster::cast($this->value, $this->type);
     }
 }

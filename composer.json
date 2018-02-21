@@ -24,7 +24,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Konsulting\\Laravel\\SiteConfig\\Tests": "tests/"
+      "Konsulting\\Laravel\\SiteConfig\\Tests\\": "tests/"
     }
   }
 }

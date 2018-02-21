@@ -1,8 +1,11 @@
 <?php
 
-use Konsulting\Laravel\EditorStamps\Schema;
+//use Konsulting\Laravel\EditorStamps\Schema;
 use Illuminate\Database\Migrations\Migration;
-use Konsulting\Laravel\EditorStamps\Blueprint;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+//use Konsulting\Laravel\EditorStamps\Blueprint;
 
 class CreateSiteConfigTable extends Migration
 {
@@ -14,13 +17,13 @@ class CreateSiteConfigTable extends Migration
     public function up()
     {
         Schema::create('site_config', function (Blueprint $table) {
-            $table->increments('id');
             $table->string('key');
-            $table->string('value');
-            $table->string('type');
+            $table->string('value')->nullable();
+            $table->string('type')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->editorStamps();
+
+            $table->primary('key');
         });
     }
 
