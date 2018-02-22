@@ -17,9 +17,11 @@ class SiteConfig
     }
 
     /**
+     * Set an item in config. Write it to the database with the relevant type.
+     *
      * @param string $key
      * @param mixed  $value
-     * @param null   $type
+     * @param string $type
      */
     public static function set($key, $value, $type = null)
     {
@@ -40,7 +42,7 @@ class SiteConfig
     /**
      * Get the config namespace. If a key is supplied, get the qualified key path.
      *
-     * @param string|null $key
+     * @param string $key
      * @return string
      */
     protected static function namespace($key = null)
