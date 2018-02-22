@@ -26,5 +26,12 @@
     "psr-4": {
       "Konsulting\\Laravel\\SiteConfig\\Tests\\": "tests/"
     }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Konsulting\\Laravel\\SiteConfig\\SiteConfigServiceProvider"
+      ]
+    }
   }
 }
